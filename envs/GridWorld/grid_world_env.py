@@ -15,7 +15,7 @@ class GridWorldEnv(gym.Env):
         "render_fps": 4
     }
 
-    def __init__(self, render_mode=None, size=5):
+    def __init__(self, render_mode=None, render_fps=None, size=5):
         self.size = size
         self.window_size = 512
 
@@ -40,6 +40,7 @@ class GridWorldEnv(gym.Env):
         
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
+        self.render_fps = self.metadata["render_fps"] if render_fps is None else render_fps
 
         self.window = None
         self.clock = None
@@ -152,7 +153,7 @@ class GridWorldEnv(gym.Env):
             self.window.blit(canvas, canvas.get_rect())
             pygame.event.pump()
             pygame.display.update()
-            self.clock.tick(self.metadata["render_fps"])
+            self.clock.tick(self.render_fps)
         else:
             return np.transpose(
                 np.array(pygame.surfarray.pixels3d(canvas)), axes=(1, 0, 2)

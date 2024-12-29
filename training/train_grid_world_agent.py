@@ -1,6 +1,7 @@
 import json
 from tqdm import tqdm
 import gymnasium as gym
+import custom_gym
 import numpy as np
 
 from agents.GridWorld.grid_world_agent import GridWorldAgent
@@ -13,7 +14,7 @@ FE = 0.1
 DF = 0.95
 
 env = gym.make(
-    "envs:envs/GridWorld-v0", 
+    "GridWorld-v0", 
     # render_mode="human", 
     render_fps=120)
 env = gym.wrappers.RecordEpisodeStatistics(env, buffer_length=EPISODES)

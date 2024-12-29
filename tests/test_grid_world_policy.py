@@ -1,4 +1,5 @@
 import gymnasium as gym
+import custom_gym
 import numpy as np
 from collections import defaultdict
 import json
@@ -8,7 +9,7 @@ from agents.GridWorld.grid_world_agent import GridWorldAgent
 SIMULATION_LENGTH = 300
 MAX_STEPS = 10
 
-env = gym.make("envs:envs/GridWorld-v0", render_mode="human", render_fps=10)
+env = gym.make("GridWorld-v0", render_mode="human", render_fps=10)
 agent = GridWorldAgent(
     env=env,
     learning_rate=0.0,

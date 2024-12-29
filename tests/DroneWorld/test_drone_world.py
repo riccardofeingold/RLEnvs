@@ -7,7 +7,7 @@ EPSIODES = 100
 env = gym.make(
     'Ant-v5',
     render_mode='human',
-    xml_file='../mujoco_menagerie/skydio_x2/scene.xml',
+    xml_file='./custom_gym/assets/DroneWorld/skydio_x2/scene.xml',
     forward_reward_weight=0,
     ctrl_cost_weight=0,
     contact_cost_weight=0,

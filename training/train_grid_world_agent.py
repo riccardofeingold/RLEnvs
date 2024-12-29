@@ -1,17 +1,20 @@
+from dataclasses import dataclass
 import json
 from tqdm import tqdm
 import gymnasium as gym
-import custom_gym
+from custom_gym.envs.GridWorld import GridWorldEnv
+from custom_gym.algo.Q_learning import QLearningAgent, QLearningCfg
 import numpy as np
 
-from agents.GridWorld.grid_world_agent import GridWorldAgent
-
-LR = 0.01
-Eps = 1.0
 EPISODES = 100_000
-ED = Eps / (EPISODES / 2)
-FE = 0.1
-DF = 0.95
+
+@dataclass
+class GridWorldQLearningCfg(QLearningCfg):
+    learning_rate = 0.01
+    discount_factor = 0.95
+    initial_epsilon = 1.0
+    epsilon_decay = initial_epsilon / (EPISODES / 2)
+    min_epsilon = 0.1
 
 env = gym.make(
     "GridWorld-v0", 
@@ -19,13 +22,9 @@ env = gym.make(
     render_fps=120)
 env = gym.wrappers.RecordEpisodeStatistics(env, buffer_length=EPISODES)
 
-agent = GridWorldAgent(
+agent = QLearningAgent(
     env=env,
-    learning_rate=LR,
-    initial_epsilon=Eps,
-    epsilon_decay=ED,
-    final_epsilon=FE,
-    discount_factor=DF
+    cfg=GridWorldQLearningCfg 
 )
 
 for episode in tqdm(range(EPISODES)):

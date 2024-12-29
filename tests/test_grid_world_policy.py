@@ -1,10 +1,9 @@
 import gymnasium as gym
-import custom_gym
+from custom_gym.envs.GridWorld import GridWorldEnv
+from custom_gym.agents.GridWorld import GridWorldAgent
 import numpy as np
 from collections import defaultdict
 import json
-
-from agents.GridWorld.grid_world_agent import GridWorldAgent
 
 SIMULATION_LENGTH = 300
 MAX_STEPS = 10

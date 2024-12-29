@@ -1,9 +1,21 @@
 import gymnasium as gym
 import numpy as np
 from gymnasium import spaces
+from gymnasium.envs.mujoco import MujocoEnv 
 
-class DroneWorldEnv(gym.Env):
-    def __init__(self):
+class DroneWorldEnv(MujocoEnv):
+    metadata = {
+        "render_modes": [
+            "human",
+            "rgb_array",
+            "rgbd_tuple"
+        ]
+    }
+    def __init__(
+        self,
+        xml_file: str = "skydio_x2/scene.xml",
+        
+    ):
         super().__init__()
 
         self.action_space = spaces.Box(0, 10, shape=(4,), dtype=float)

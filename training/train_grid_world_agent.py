@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import json
 from tqdm import tqdm
 import gymnasium as gym
-from custom_gym.envs.GridWorld import GridWorldEnv
+from custom_gym.envs.GridWorld import GridWorldEnv, GridWorldEnvCfg
 from custom_gym.algo.Q_learning import QLearningAgent, QLearningCfg
 import numpy as np
 
@@ -18,8 +18,8 @@ class GridWorldQLearningCfg(QLearningCfg):
 
 env = gym.make(
     "GridWorld-v0", 
-    # render_mode="human", 
-    render_fps=120)
+    cfg=GridWorldEnvCfg
+)
 env = gym.wrappers.RecordEpisodeStatistics(env, buffer_length=EPISODES)
 
 agent = QLearningAgent(
@@ -27,7 +27,7 @@ agent = QLearningAgent(
     cfg=GridWorldQLearningCfg 
 )
 
-for episode in tqdm(range(EPISODES)):
+for episode in tqdm(range(GridWorldEnvCfg.episode_length)):
     obs, info = env.reset()
     
     done = False

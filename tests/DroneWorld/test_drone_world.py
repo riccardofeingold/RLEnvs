@@ -2,7 +2,7 @@ from tqdm import tqdm
 import gymnasium as gym
 import numpy as np
 
-EPSIODES = 100
+EPSIODES = 1000
 
 env = gym.make(
     'Ant-v5',
@@ -28,9 +28,9 @@ for episode in tqdm(range(EPSIODES)):
     done = False
 
     while not done:
-        action = env.action_space.sample()
+        # action = env.action_space.sample()
+        action = np.zeros((4,))
         next_observations, reward, terminated, truncated, info = env.step(action)
-
         done = terminated or truncated
         observations = next_observations
 

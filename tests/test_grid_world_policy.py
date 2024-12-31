@@ -1,27 +1,32 @@
 import gymnasium as gym
-from custom_gym.envs.GridWorld import GridWorldEnv
-from custom_gym.agents.GridWorld import GridWorldAgent
+from custom_gym.envs.GridWorld import GridWorldEnv, GridWorldEnvCfg
+from custom_gym.algo.Q_learning import QLearningAgent, QLearningCfg
 import numpy as np
+from dataclasses import dataclass
 from collections import defaultdict
 import json
 
 SIMULATION_LENGTH = 300
 MAX_STEPS = 10
 
-env = gym.make("GridWorld-v0", render_mode="human", render_fps=10)
-agent = GridWorldAgent(
+@dataclass
+class GridWorldQLearningCfg(QLearningCfg):
+    learning_rate = 0.0
+    epsilon_decay = 0.0
+    min_epsilon = 0.0
+    initial_epsilon = 0.0
+    discount_factor = 0.0
+
+env = gym.make("GridWorld-v0", cfg=GridWorldEnvCfg, testing=True)
+agent = QLearningAgent(
     env=env,
-    learning_rate=0.0,
-    initial_epsilon=0.0,
-    epsilon_decay=0.0,
-    final_epsilon=0.0,
-    discount_factor=0.0
+    cfg=GridWorldQLearningCfg
 )
 
 with open('policies/GridWorld/Q_learning/q_values.json', 'r') as file:
     dict_q_values = json.load(file)
 
-agent.Q_values = defaultdict(lambda: np.zeros(env.action_space.n),
+agent.q_table = defaultdict(lambda: np.zeros(env.action_space.n),
                              {key: np.array(value) for key, value in dict_q_values.items()})
 
 for epsiode in range(SIMULATION_LENGTH):

@@ -5,9 +5,9 @@ import numpy as np
 EPSIODES = 1000
 
 env = gym.make(
-    'Ant-v5',
-    render_mode='human',
-    xml_file='./custom_gym/assets/DroneWorld/skydio_x2/scene.xml',
+    "Ant-v5",
+    render_mode="human",
+    xml_file="./custom_gym/assets/DroneWorld/skydio_x2/scene.xml",
     forward_reward_weight=0,
     ctrl_cost_weight=0,
     contact_cost_weight=0,

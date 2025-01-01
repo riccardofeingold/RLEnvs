@@ -3,6 +3,7 @@ import numpy as np
 from dataclasses import dataclass
 from collections import defaultdict
 
+
 @dataclass
 class QLearningCfg:
     learning_rate: float = 0.01
@@ -11,12 +12,9 @@ class QLearningCfg:
     epsilon_decay: float = 0.995
     min_epsilon: float = 0.1
 
+
 class QLearningAgent:
-    def __init__(
-        self,
-        env: gym.Env,
-        cfg: QLearningCfg
-    ):
+    def __init__(self, env: gym.Env, cfg: QLearningCfg):
         self.env = env
 
         self.alpha = cfg.learning_rate
@@ -27,24 +25,21 @@ class QLearningAgent:
 
         self.q_table = defaultdict(lambda: np.zeros((env.action_space.n)))
         self.training_error = []
-    
+
     def get_action(self, obs: dict) -> int:
         if np.random.random() < self.epsilon:
             return self.env.action_space.sample()
         else:
             return int(np.argmax(self.q_table[str(obs)]))
-    
+
     def update(
-        self,
-        obs: dict,
-        action: int,
-        reward: float,
-        terminated: bool,
-        next_obs: dict
+        self, obs: dict, action: int, reward: float, terminated: bool, next_obs: dict
     ):
         next_obs_str = str(next_obs)
         obs_str = str(obs)
-        future_q_table = (not terminated) * self.gamma * np.max(self.q_table[next_obs_str])
+        future_q_table = (
+            (not terminated) * self.gamma * np.max(self.q_table[next_obs_str])
+        )
         temporal_diff = reward + future_q_table - self.q_table[obs_str][action]
         self.q_table[obs_str][action] += self.alpha * temporal_diff
 

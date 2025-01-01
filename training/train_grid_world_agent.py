@@ -8,6 +8,7 @@ import numpy as np
 
 EPISODES = 100_000
 
+
 @dataclass
 class GridWorldQLearningCfg(QLearningCfg):
     learning_rate = 0.01
@@ -16,20 +17,15 @@ class GridWorldQLearningCfg(QLearningCfg):
     epsilon_decay = initial_epsilon / (EPISODES / 2)
     min_epsilon = 0.1
 
-env = gym.make(
-    "GridWorld-v0", 
-    cfg=GridWorldEnvCfg
-)
+
+env = gym.make("GridWorld-v0", cfg=GridWorldEnvCfg)
 env = gym.wrappers.RecordEpisodeStatistics(env, buffer_length=EPISODES)
 
-agent = QLearningAgent(
-    env=env,
-    cfg=GridWorldQLearningCfg 
-)
+agent = QLearningAgent(env=env, cfg=GridWorldQLearningCfg)
 
 for episode in tqdm(range(GridWorldEnvCfg.episode_length)):
     obs, info = env.reset()
-    
+
     done = False
     while not done:
         action = agent.get_action(obs)
@@ -40,15 +36,16 @@ for episode in tqdm(range(GridWorldEnvCfg.episode_length)):
         done = terminated or truncated
         obs = next_obs
         # env.render()
-    
+
     agent.decay_epsilon()
 # env.close()
 
 dict_q_values = {key: value.tolist() for key, value in agent.Q_values.items()}
-with open('policies/GridWorld/Q_learning/q_values.json', 'w') as file:
+with open("policies/GridWorld/Q_learning/q_values.json", "w") as file:
     json.dump(dict_q_values, file)
 
 from matplotlib import pyplot as plt
+
 # visualize the episode rewards, episode length and training error in one figure
 fig, axs = plt.subplots(1, 3, figsize=(20, 8))
 

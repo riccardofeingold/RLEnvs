@@ -80,26 +80,35 @@ class DroneWorldEnv(MujocoEnv, utils.EzPickle):
     def _get_reward(self, obs: np.ndarray[np.float64]) -> float:
         position_tracking_reward = (
             gaussian_distribution(
-                diff=np.linalg.norm(self.data.qpos[:3] - self.reference_position),
+                diff=np.abs(self.data.qpos[2] - self.reference_position[2]),
                 mu=self.cfg.reward_scales.position_reference_tracking["mean"],
                 sigma=self.cfg.reward_scales.position_reference_tracking["variance"],
             )
             * self.cfg.reward_scales.position_reference_tracking["scale"]
         )
 
+        low_lin_acc_reward = (
+            gaussian_distribution(
+                diff=np.linalg.norm(obs[3:6]),
+                mu=self.cfg.reward_scales.low_lin_acc["mean"],
+                sigma=self.cfg.reward_scales.low_lin_acc["variance"]
+            ) * self.cfg.reward_scales.low_lin_acc["scale"]
+        )
+
         slow_roll_pitch_rate_reward = (
             gaussian_distribution(
-                diff=np.linalg.norm(obs[6:]),
+                diff=np.linalg.norm(obs[6:9]),
                 mu=self.cfg.reward_scales.slow_roll_pitch_rate["mean"],
                 sigma=self.cfg.reward_scales.slow_roll_pitch_rate["variance"],
             )
             * self.cfg.reward_scales.slow_roll_pitch_rate["scale"]
         )
 
-        rewards = slow_roll_pitch_rate_reward + position_tracking_reward
+        rewards = slow_roll_pitch_rate_reward + position_tracking_reward + low_lin_acc_reward
         reward_info = {
             "position_tracking_reward": position_tracking_reward,
             "slow_roll_pitch_rate_reward": slow_roll_pitch_rate_reward,
+            "low_lin_acc_reward": low_lin_acc_reward
         }
         return rewards, reward_info
 
@@ -124,19 +133,19 @@ class DroneWorldEnv(MujocoEnv, utils.EzPickle):
 
     def reset_model(self):
         qpos = self.init_qpos
-        qpos[:3] = self.init_qpos[:3] + self.np_random.uniform(
+        qpos[:3] = self.np_random.uniform(
             low=self.cfg.robot.initial_position[:, 0],
             high=self.cfg.robot.initial_position[:, 1],
         )
 
         qvel = self.init_qvel
-        qvel[:3] = self.init_qvel[:3] + self.np_random.uniform(
+        qvel[:3] = self.np_random.uniform(
             low=self.cfg.robot.initial_velocity[:, 0],
             high=self.cfg.robot.initial_velocity[:, 1],
         )
         self.set_state(qpos, qvel)
 
-        self.reference_position = self._get_commands()
+        self.reference_position = qpos[:3] 
         observations = self._get_obs(np.zeros((4,)))
 
         self.elapsed_time = 0.0

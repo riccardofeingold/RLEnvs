@@ -35,9 +35,10 @@ class MLP(nn.Module):
         for layer in self.mlp_without_output:
             x = layer(x)
 
+        action_means = torch.nn.functional.softplus(self.mean_output(x))
+
         if self.with_stdv:
-            action_means = self.mean_output(x)
-            action_stdv = torch.log(1 + torch.exp(self.stdv_output(x)))
+            action_stdv = torch.nn.functional.softplus(self.stdv_output(x))
             return action_means, action_stdv
 
         return action_means
@@ -52,4 +53,7 @@ if __name__ == "__main__":
     print(mlp)
 
     test = torch.tensor([1, 2, 3, 4], device=device)
+    torch.save(mlp, "./policies/DroneWorld/REINFORCE/hoverPolicy.pth")
+    model = torch.load("./policies/DroneWorld/REINFORCE/hoverPolicy.pth")
+    print(model(test))
     print(mlp(test))

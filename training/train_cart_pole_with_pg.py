@@ -18,7 +18,8 @@ def train(env_name='CartPole-v1', hidden_sizes=[32], lr=1e-2,
           epochs=50, batch_size=5000, render=False):
 
     # make environment, check spaces, get obs / act dims
-    env = gym.make(env_name)
+    render_mode = "human" if render else None
+    env = gym.make(env_name, render_mode=render_mode)
     assert isinstance(env.observation_space, Box), \
         "This example only works for envs with continuous state spaces."
     assert isinstance(env.action_space, Discrete), \
@@ -43,6 +44,13 @@ def train(env_name='CartPole-v1', hidden_sizes=[32], lr=1e-2,
     def compute_loss(obs, act, weights):
         logp = get_policy(obs).log_prob(act)
         return -(logp * weights).mean()
+    
+    def reward_to_go(rews):
+        n = len(rews)
+        rtgs = np.zeros_like(rews)
+        for i in reversed(range(n)):
+            rtgs[i] = rews[i] + (rtgs[i+1] if i+1 < n else 0)
+        return rtgs
 
     # make optimizer
     optimizer = Adam(logits_net.parameters(), lr=lr)
@@ -90,7 +98,10 @@ def train(env_name='CartPole-v1', hidden_sizes=[32], lr=1e-2,
                 batch_lens.append(ep_len)
 
                 # the weight for each logprob(a|s) is R(tau)
-                batch_weights += [ep_ret] * ep_len
+                # batch_weights += [ep_ret] * ep_len
+
+                # using reward to go to reduce variance in sample estimate of policy gradient
+                batch_weights += list(reward_to_go(ep_rews))
 
                 # reset episode-specific variables
                 obs, _ = env.reset()
@@ -123,7 +134,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--env_name', '--env', type=str, default='CartPole-v1')
-    parser.add_argument('--render', action='store_true')
+    parser.add_argument('--render', action='store_true', default=True)
     parser.add_argument('--lr', type=float, default=1e-2)
     args = parser.parse_args()
     print('\nUsing simplest formulation of policy gradient.\n')
